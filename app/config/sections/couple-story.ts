@@ -3,8 +3,8 @@ import { Section } from '../../types';
 export const coupleStory: Section = {
   id: 'couple-story',
   subtitle: {
-    ko: '우리의 이야기',
-    en: 'Our Story',
+    ko: 'OUR STORY',
+    en: 'OUR STORY',
   },
   title: {
     ko: '우리가 만난 순간부터',
