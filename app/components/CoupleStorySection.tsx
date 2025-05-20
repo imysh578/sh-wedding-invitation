@@ -81,9 +81,6 @@ const StoryCard: React.FC<StoryCardProps> = ({ date, title, description, images,
 
 export default function CoupleStorySection() {
   const { language } = useLanguage();
-  const section = weddingConfig.sections.find(s => s.id === 'couple-story') as Section & { stories: Story[] };
-  if (!section || !section.stories) return null;
-  const { subtitle, title, stories } = section;
 
   // 커플 스토리 이미지 API에서 이미지 목록을 받아옴
   const [storyImages, setStoryImages] = useState<{ [key: string]: string[] }>({});
@@ -92,6 +89,10 @@ export default function CoupleStorySection() {
       .then(res => res.json())
       .then(data => setStoryImages(data));
   }, []);
+
+  const section = weddingConfig.sections.find(s => s.id === 'couple-story') as Section & { stories: Story[] };
+  if (!section || !section.stories) return null;
+  const { subtitle, title, stories } = section;
 
   return (
     <section className="relative flex flex-col bg-white py-16 px-4">

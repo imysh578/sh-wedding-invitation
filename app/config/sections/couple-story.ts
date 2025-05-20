@@ -10,6 +10,10 @@ export const coupleStory: Section = {
     ko: '우리가 만난 순간부터',
     en: 'From the Moment We Met',
   },
+  content: {
+    ko: '',
+    en: ''
+  },
   stories: [
     {
       date: { ko: '2023년 10월', en: 'October 2023' },

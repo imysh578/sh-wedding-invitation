@@ -6,6 +6,10 @@ export const calendar: Section = {
     ko: 'WEDDING DAY',
     en: 'WEDDING DAY',
   },
+  content: {
+    ko: '',
+    en: ''
+  },
   title: {
     ko: '결혼식 일정',
     en: 'Wedding Date',
