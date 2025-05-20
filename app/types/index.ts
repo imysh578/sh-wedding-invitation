@@ -106,7 +106,6 @@ export interface Section {
     };
     heart?: boolean;
   };
-  keyColor?: string;
 }
 
 export interface WeddingConfig {
