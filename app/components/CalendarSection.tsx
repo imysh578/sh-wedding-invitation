@@ -30,7 +30,7 @@ export default function CalendarSection() {
   const { language } = useLanguage();
   const section = weddingConfig.sections.find(s => s.id === 'calendar');
   if (!section || !section.calendar) return null;
-  const { subtitle, title, calendar, keyColor } = section;
+  const { subtitle, title, calendar } = section;
   const { year, month, day, time } = calendar;
   const weeks = getCalendarMatrix(year, month);
 
@@ -58,7 +58,7 @@ export default function CalendarSection() {
           </div>
           <div className="grid grid-cols-7 text-center text-gray-400 font-semibold mb-2 text-base">
             {WEEKDAYS[language].map((w, i) => (
-              <div key={i} className={i === 0 ? `text-[${keyColor}]` : ''}>{w}</div>
+              <div key={i} className={i === 0 ? `text-[#F5898A]` : ''}>{w}</div>
             ))}
           </div>
           <div className="grid grid-cols-7 text-center text-gray-700 text-lg gap-y-2">
@@ -73,9 +73,9 @@ export default function CalendarSection() {
                           className={
                             `inline-flex w-9 h-9 items-center justify-center rounded-full mb-1 transition-all ` +
                             (isWeddingDay
-                              ? `bg-[${keyColor}] text-white font-bold`
+                              ? `bg-[#F5898A] text-white font-bold`
                               : di === 0
-                              ? `text-[${keyColor}] bg-transparent font-normal`
+                              ? `text-[#F5898A] bg-transparent font-normal`
                               : 'bg-transparent font-normal')
                           }
                         >

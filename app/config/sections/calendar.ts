@@ -25,5 +25,4 @@ export const calendar: Section = {
   },
   image: '/images/calendar/main.jpeg',
   animation: 'fade',
-  keyColor: '#F5898A'
 }; 
