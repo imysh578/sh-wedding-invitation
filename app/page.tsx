@@ -7,6 +7,7 @@ import { useLanguage } from './contexts/LanguageContext';
 import { FaGlobe } from 'react-icons/fa';
 import InvitationSection from './components/InvitationSection';
 import WeddingDaySection from './components/WeddingDaySection';
+import LocationSection from './components/LocationSection';
 
 function LanguageToggle() {
   const { language, toggleLanguage } = useLanguage();
@@ -36,6 +37,9 @@ function WeddingContent() {
 
       {/* Wedding Day 섹션 */}
       <WeddingDaySection />
+
+      {/* Location 섹션 */}
+      <LocationSection />
     </main>
   );
 }
