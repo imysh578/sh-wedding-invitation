@@ -26,9 +26,9 @@ const WEEKDAYS = {
   en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
 };
 
-export default function CalendarSection() {
+export default function WeddingDaySection() {
   const { language } = useLanguage();
-  const section = weddingConfig.sections.find(s => s.id === 'calendar');
+  const section = weddingConfig.sections.find(s => s.id === 'weddingDay');
   if (!section || !section.calendar) return null;
   const { subtitle, title, calendar } = section;
   const { year, month, day, time } = calendar;
@@ -42,7 +42,7 @@ export default function CalendarSection() {
     : `${weekday}, ${month}/${day}/${year}, ${time[language]}`;
 
   return (
-    <section className="relative flex flex-col bg-gray-50 py-12 px-4 ">
+    <section className="relative flex flex-col bg-gray-50 py-12 px-4 h-150">
       {/* 상단 타이틀 영역 */}
       <div className="w-full text-center mb-6">
         <div className="uppercase text-gray-400 tracking-widest text-sm mb-1">{subtitle[language]}</div>

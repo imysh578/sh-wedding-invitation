@@ -1,7 +1,7 @@
 import { Section } from '../../types';
 
-export const calendar: Section = {
-  id: 'calendar',
+export const weddingDay: Section = {
+  id: 'weddingDay',
   subtitle: {
     ko: 'WEDDING DAY',
     en: 'WEDDING DAY',
@@ -23,6 +23,6 @@ export const calendar: Section = {
       en: '5:30 PM',
     },
   },
-  image: '/images/calendar/main.jpeg',
+  image: '/images/weddingDay/main.jpeg',
   animation: 'fade',
 }; 

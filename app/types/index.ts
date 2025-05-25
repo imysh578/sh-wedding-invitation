@@ -70,7 +70,7 @@ export interface Section {
     ko: string;
     en: string;
   };
-  content: {
+  content?: {
     ko: string;
     en: string;
   };
