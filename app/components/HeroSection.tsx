@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import { useLanguage } from '../contexts/LanguageContext';
 import { weddingConfig } from '../config';
 
@@ -17,10 +18,13 @@ export default function HeroSection() {
     <section className="relative h-screen w-full flex flex-col justify-between">
       {/* 배경 이미지 */}
       <div className="absolute inset-0">
-        <img
+        <Image
           src={image}
           alt="Wedding Background"
-          className="h-full w-full object-cover"
+          fill
+          priority
+          className="object-cover"
+          sizes="100vw"
         />
       </div>
       {/* 오버레이 */}

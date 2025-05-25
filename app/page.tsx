@@ -24,8 +24,6 @@ function LanguageToggle() {
 }
 
 function WeddingContent() {
-  const { language } = useLanguage();
-
   return (
     <main className="min-h-screen">
       {weddingConfig.theme.showLanguageToggle && <LanguageToggle />}
@@ -38,8 +36,6 @@ function WeddingContent() {
 
       {/* Wedding Day 섹션 */}
       <WeddingDaySection />
-
-      
     </main>
   );
 }
