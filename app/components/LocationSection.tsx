@@ -1,65 +1,66 @@
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { useLanguage } from "../contexts/LanguageContext";
 import { weddingConfig } from "../config";
 import { location } from "../config/location";
 import Script from "next/script";
+import { Coordinates, NaverMap, MapOptions } from "../types/map";
+
+const MAP_ID = "wedding-location-map";
+const VENUE_COORDINATES: Coordinates = {
+	lat: 37.5635,
+	lng: 126.9857,
+};
 
 export default function LocationSection() {
 	const { language } = useLanguage();
 	const { venue } = weddingConfig;
-	const mapRef = useRef<naver.maps.Map | null>(null);
+	const mapRef = useRef<NaverMap | null>(null);
 
-	useEffect(() => {
-		const initializeMap = () => {
-			if (!window.naver || !window.naver.maps) return;
+	const initializeMap = useCallback(() => {
+		if (!window.naver || !window.naver.maps) return;
 
-			const mapOptions = {
-				center: new window.naver.maps.LatLng(37.5635, 126.9857),
-				zoom: 17,
-				zoomControl: true,
-				zoomControlOptions: {
-					position: window.naver.maps.Position.TOP_RIGHT,
-				},
-			};
-
-			const map = new window.naver.maps.Map("map", mapOptions);
-			mapRef.current = map;
-
-			const marker = new window.naver.maps.Marker({
-				position: new window.naver.maps.LatLng(37.5635, 126.9857),
-				map: map,
-			});
-
-			const infowindow = new window.naver.maps.InfoWindow({
-				content: `
-          <div style="padding:10px;min-width:200px;text-align:center;">
-            <b>${venue.name}</b><br/>
-            ${venue.address}
-          </div>
-        `,
-			});
-
-			window.naver.maps.Event.addListener(marker, "click", () => {
-				if (infowindow.getMap()) {
-					infowindow.close();
-				} else {
-					infowindow.open(map, marker);
-				}
-			});
+		const mapOptions: MapOptions = {
+			center: new window.naver.maps.LatLng(VENUE_COORDINATES.lat, VENUE_COORDINATES.lng),
+			zoom: 17,
+			scaleControl: true,
+			mapDataControl: true,
+			zoomControl: true,
+			zoomControlOptions: {
+				position: window.naver.maps.Position.TOP_RIGHT,
+			},
+			logoControlOptions: {
+				position: window.naver.maps.Position.BOTTOM_LEFT,
+			},
 		};
 
-		// 네이버 지도 API가 로드되면 지도 초기화
-		if (window.naver && window.naver.maps) {
-			initializeMap();
-		} else {
-			// API가 아직 로드되지 않은 경우, 로드 이벤트 리스너 추가
-			window.addEventListener("load", initializeMap);
-		}
+		const map = new window.naver.maps.Map(MAP_ID, mapOptions);
+		mapRef.current = map;
 
-		return () => {
-			window.removeEventListener("load", initializeMap);
-		};
+		// 마커 생성
+		const marker = new window.naver.maps.Marker({
+			position: new window.naver.maps.LatLng(VENUE_COORDINATES.lat, VENUE_COORDINATES.lng),
+			map: map,
+		});
+
+		// 인포윈도우 생성
+		const infowindow = new window.naver.maps.InfoWindow({
+			content: `
+        <div style="padding:10px;min-width:200px;text-align:center;">
+          <b>${venue.name}</b><br/>
+          ${venue.address}
+        </div>
+      `,
+		});
+
+		// 마커 클릭 이벤트
+		window.naver.maps.Event.addListener(marker, "click", () => {
+			if (infowindow.getMap()) {
+				infowindow.close();
+			} else {
+				infowindow.open(map, marker);
+			}
+		});
 	}, [venue.name, venue.address]);
 
 	return (
@@ -68,22 +69,10 @@ export default function LocationSection() {
 			<Script
 				strategy="afterInteractive"
 				src={`https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=${process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID}`}
-				onLoad={() => {
-					if (mapRef.current === null) {
-						const mapOptions = {
-							center: new window.naver.maps.LatLng(37.5635, 126.9857),
-							zoom: 17,
-							zoomControl: true,
-							zoomControlOptions: {
-								position: window.naver.maps.Position.TOP_RIGHT,
-							},
-						};
-						mapRef.current = new window.naver.maps.Map("map", mapOptions);
-					}
-				}}
+				onReady={initializeMap}
 			/>
 
-			<div className="container mx-auto px-4">
+			<div className="container max-w-lg mx-auto px-4">
 				{/* 섹션 타이틀 */}
 				<div className="text-center mb-12">
 					<motion.h2
@@ -114,7 +103,7 @@ export default function LocationSection() {
 					transition={{ duration: 0.5, delay: 0.4 }}
 					className="w-full h-[400px] rounded-2xl overflow-hidden shadow-lg mb-8"
 				>
-					<div id="map" className="w-full h-full" />
+					<div id={MAP_ID} className="w-full h-full" />
 				</motion.div>
 
 				{/* 상세 정보 */}
