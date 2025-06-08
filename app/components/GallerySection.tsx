@@ -16,6 +16,7 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [showAll, setShowAll] = useState(false);
+	const [slideDirection, setSlideDirection] = useState<"left" | "right" | null>(null);
 
 	// 이미지 프리로딩을 위한 상태
 	const [preloadedImages, setPreloadedImages] = useState<Set<string>>(new Set());
@@ -95,6 +96,20 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 	const toggleView = () => {
 		setShowAll(!showAll);
 		// 스크롤 동작 제거
+	};
+
+	const handlePrev = () => {
+		setSlideDirection("right");
+		const currentIndex = images.findIndex((img) => img.src === selectedImage?.src);
+		const prevIndex = (currentIndex - 1 + images.length) % images.length;
+		setSelectedImage(images[prevIndex]);
+	};
+
+	const handleNext = () => {
+		setSlideDirection("left");
+		const currentIndex = images.findIndex((img) => img.src === selectedImage?.src);
+		const nextIndex = (currentIndex + 1) % images.length;
+		setSelectedImage(images[nextIndex]);
 	};
 
 	if (isLoading) {
@@ -230,19 +245,40 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 									{images.findIndex((img) => img.src === selectedImage.src) + 1} / {images.length}
 								</div>
 							)}
-							<motion.div
-								className="relative w-full h-full max-w-[95vw] max-h-[95vh]"
-								onClick={(e) => e.stopPropagation()}
-							>
-								<Image
-									src={selectedImage.src}
-									alt={selectedImage.alt}
-									fill
-									className="object-contain"
-									sizes="95vw"
-									priority
-								/>
-							</motion.div>
+							<AnimatePresence custom={slideDirection} mode="popLayout">
+								{selectedImage && (
+									<motion.div
+										key={selectedImage.src}
+										custom={slideDirection}
+										initial={{ x: slideDirection === "left" ? 300 : slideDirection === "right" ? -300 : 0, opacity: 0 }}
+										animate={{ x: 0, opacity: 1 }}
+										exit={{ x: slideDirection === "left" ? -300 : slideDirection === "right" ? 300 : 0, opacity: 0 }}
+										transition={{ duration: 0.6, ease: "easeInOut" }}
+										className="relative w-full h-full max-w-[95vw] max-h-[95vh]"
+										onClick={(e) => e.stopPropagation()}
+										drag="x"
+										dragConstraints={{ left: 0, right: 0 }}
+										onDragEnd={(event, info) => {
+											if (info.offset.x < -100) {
+												setSlideDirection("left");
+												handleNext();
+											} else if (info.offset.x > 100) {
+												setSlideDirection("right");
+												handlePrev();
+											}
+										}}
+									>
+										<Image
+											src={selectedImage.src}
+											alt={selectedImage.alt}
+											fill
+											className="object-contain"
+											sizes="95vw"
+											priority
+										/>
+									</motion.div>
+								)}
+							</AnimatePresence>
 
 							{/* 이전/다음 버튼 */}
 							{images.length > 1 && (
@@ -251,9 +287,7 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 										className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors z-10 bg-black/50 rounded-full p-2 disabled:opacity-50 disabled:cursor-not-allowed"
 										onClick={(e) => {
 											e.stopPropagation();
-											const currentIndex = images.findIndex((img) => img.src === selectedImage.src);
-											const prevIndex = (currentIndex - 1 + images.length) % images.length;
-											setSelectedImage(images[prevIndex]);
+											handlePrev();
 										}}
 										aria-label="이전 이미지"
 									>
@@ -263,9 +297,7 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 										className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors z-10 bg-black/50 rounded-full p-2 disabled:opacity-50 disabled:cursor-not-allowed"
 										onClick={(e) => {
 											e.stopPropagation();
-											const currentIndex = images.findIndex((img) => img.src === selectedImage.src);
-											const nextIndex = (currentIndex + 1) % images.length;
-											setSelectedImage(images[nextIndex]);
+											handleNext();
 										}}
 										aria-label="다음 이미지"
 									>
