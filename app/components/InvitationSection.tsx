@@ -3,6 +3,7 @@ import { FaPhoneAlt, FaTimes } from "react-icons/fa";
 import { FaRegMessage } from "react-icons/fa6";
 import { useLanguage } from "../contexts/LanguageContext";
 import { weddingConfig } from "../config";
+import SectionTemplate from "./SectionTemplate";
 
 export default function InvitationSection() {
 	const { language } = useLanguage();
@@ -20,40 +21,36 @@ export default function InvitationSection() {
 	const brideMother = weddingConfig.brideMother;
 
 	return (
-		<section className="bg-white py-12 px-4 relative overflow-hidden">
-			{/* 배경 효과(노란 점 등은 추후 커스텀 가능) */}
-			<div className="max-w-xl mx-auto text-center">
-				<div className="uppercase text-gray-400 tracking-widest text-sm mb-2">{subtitle[language]}</div>
-				<h2 className="text-2xl md:text-3xl font-bold text-gray-700 mb-6">{title[language]}</h2>
-				<p className="text-gray-600 whitespace-pre-line leading-relaxed mb-8">{content?.[language]}</p>
-				{/* 가족 정보 */}
-				<div className="text-gray-700 text-lg mb-8 max-w-xs mx-auto">
-					<hr className="my-8 border-gray-200" />
-					<div className="grid grid-cols-13 gap-0 mb-2 text-center">
-						<span className="font-bold inline-block mx-1 col-span-3">{groomFather.name[language]}</span>
-						<span className="font-bold inline-block mx-1 col-span-1">⋅</span>
-						<span className="font-bold inline-block mx-1 col-span-3">{groomMother.name[language]}</span>
-						<span className="inline-block mx-1 col-span-3">{language === "ko" ? "의 아들" : ""}</span>
-						<span className="font-bold inline-block mx-1 col-span-3">{groom.name[language]}</span>
-					</div>
-					<div className="grid grid-cols-13 gap-0 text-center">
-						<span className="font-bold inline-block mx-1 col-span-3">{brideFather.name[language]}</span>
-						<span className="font-bold inline-block mx-1 col-span-1">⋅</span>
-						<span className="font-bold inline-block mx-1 col-span-3">{brideMother.name[language]}</span>
-						<span className="inline-block mx-1 col-span-3">{language === "ko" ? "의 딸" : ""}</span>
-						<span className="font-bold inline-block mx-1 col-span-3">{bride.name[language]}</span>
-					</div>
-					<hr className="my-8 border-gray-200" />
+		<SectionTemplate id={section.id} title={title[language]} subtitle={subtitle[language]}>
+			<p className="text-gray-600 whitespace-pre-line leading-relaxed mb-8">{content?.[language]}</p>
+			{/* 가족 정보 */}
+			<div className="text-gray-700 text-lg mb-8 max-w-xs mx-auto">
+				<hr className="my-8 border-gray-200" />
+				<div className="grid grid-cols-13 gap-0 mb-2 text-center">
+					<span className="font-bold inline-block mx-1 col-span-3">{groomFather.name[language]}</span>
+					<span className="font-bold inline-block mx-1 col-span-1">⋅</span>
+					<span className="font-bold inline-block mx-1 col-span-3">{groomMother.name[language]}</span>
+					<span className="inline-block mx-1 col-span-3">{language === "ko" ? "의 아들" : ""}</span>
+					<span className="font-bold inline-block mx-1 col-span-3">{groom.name[language]}</span>
 				</div>
-				{/* 축하 인사 버튼 */}
-				<button
-					className="w-full max-w-xs mx-auto flex items-center justify-center gap-2 border border-gray-300 rounded-xl py-3 text-gray-700 text-base font-medium shadow-sm hover:bg-gray-50 transition"
-					onClick={() => setModalOpen(true)}
-				>
-					<FaPhoneAlt className="mr-2" />
-					{button?.[language]}
-				</button>
+				<div className="grid grid-cols-13 gap-0 text-center">
+					<span className="font-bold inline-block mx-1 col-span-3">{brideFather.name[language]}</span>
+					<span className="font-bold inline-block mx-1 col-span-1">⋅</span>
+					<span className="font-bold inline-block mx-1 col-span-3">{brideMother.name[language]}</span>
+					<span className="inline-block mx-1 col-span-3">{language === "ko" ? "의 딸" : ""}</span>
+					<span className="font-bold inline-block mx-1 col-span-3">{bride.name[language]}</span>
+				</div>
+				<hr className="my-8 border-gray-200" />
 			</div>
+			{/* 축하 인사 버튼 */}
+			<button
+				className="w-full max-w-xs mx-auto flex items-center justify-center gap-2 border border-gray-300 rounded-xl py-3 text-gray-700 text-base font-medium shadow-sm hover:bg-gray-50 transition"
+				onClick={() => setModalOpen(true)}
+			>
+				<FaPhoneAlt className="mr-2" />
+				{button?.[language]}
+			</button>
+
 			{/* 연락처 모달 */}
 			{modalOpen && (
 				<div
@@ -118,7 +115,7 @@ export default function InvitationSection() {
 					</div>
 				</div>
 			)}
-		</section>
+		</SectionTemplate>
 	);
 }
 

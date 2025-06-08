@@ -2,9 +2,10 @@ import React, { useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { useLanguage } from "../contexts/LanguageContext";
 import { weddingConfig } from "../config";
-import { location } from "../config/location";
+import { location } from "../config/sections/location";
 import Script from "next/script";
 import { Coordinates, NaverMap, MapOptions } from "../types/map";
+import SectionTemplate from "./SectionTemplate";
 
 const MAP_ID = "wedding-location-map";
 const VENUE_COORDINATES: Coordinates = {
@@ -64,7 +65,7 @@ export default function LocationSection() {
 	}, [venue.name, venue.address]);
 
 	return (
-		<section className="relative py-20 bg-white">
+		<SectionTemplate id="location" title={location.title[language]} subtitle={location.subtitle[language]}>
 			{/* 네이버 지도 API 스크립트 */}
 			<Script
 				strategy="afterInteractive"
@@ -72,29 +73,7 @@ export default function LocationSection() {
 				onReady={initializeMap}
 			/>
 
-			<div className="container max-w-lg mx-auto px-4">
-				{/* 섹션 타이틀 */}
-				<div className="text-center mb-12">
-					<motion.h2
-						initial={{ opacity: 0, y: 20 }}
-						whileInView={{ opacity: 1, y: 0 }}
-						viewport={{ once: true }}
-						transition={{ duration: 0.5 }}
-						className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
-					>
-						{location.title[language]}
-					</motion.h2>
-					<motion.p
-						initial={{ opacity: 0, y: 20 }}
-						whileInView={{ opacity: 1, y: 0 }}
-						viewport={{ once: true }}
-						transition={{ duration: 0.5, delay: 0.2 }}
-						className="text-xl text-gray-600"
-					>
-						{location.subtitle[language]}
-					</motion.p>
-				</div>
-
+			<div className="w-full max-w-lg mx-auto px-4">
 				{/* 지도 컨테이너 */}
 				<motion.div
 					initial={{ opacity: 0, y: 20 }}
@@ -139,6 +118,6 @@ export default function LocationSection() {
 					</div>
 				</motion.div>
 			</div>
-		</section>
+		</SectionTemplate>
 	);
 }
