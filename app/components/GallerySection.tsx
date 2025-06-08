@@ -22,8 +22,7 @@ export default function GallerySection() {
 
 	// 이미지 프리로딩 함수
 	const preloadImage = (src: string) => {
-		if (preloadedImages.has(src)) return;
-
+		if (typeof window === "undefined" || preloadedImages.has(src)) return;
 		const img = new window.Image();
 		img.src = src;
 		img.onload = () => {
@@ -38,10 +37,10 @@ export default function GallerySection() {
 				const response = await fetch("/api/gallery-images");
 				if (!response.ok) throw new Error("이미지를 불러오는데 실패했습니다");
 				const data = await response.json();
-				setImages(data);
-
+				// 응답이 배열이 아니면 data.images로 할당
+				setImages(Array.isArray(data) ? data : data.images);
 				// 모든 이미지 프리로딩 시작
-				data.forEach((image: GalleryImage) => {
+				(Array.isArray(data) ? data : data.images).forEach((image: GalleryImage) => {
 					preloadImage(image.src);
 				});
 			} catch (err) {
