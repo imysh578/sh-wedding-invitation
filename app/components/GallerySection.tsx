@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useLanguage } from "../contexts/LanguageContext";
 import { GalleryImage } from "../types/gallery";
-import { FaTimes, FaExpand, FaCompress, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaTimes, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import SectionTemplate from "./SectionTemplate";
 import { gallery } from "../config/sections/gallery";
 
@@ -180,23 +180,22 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 					whileInView={{ opacity: 1, y: 0 }}
 					viewport={{ once: true }}
 					transition={{ duration: 0.5, delay: 0.6 }}
-					className="mt-8 text-center"
+					className="mt-8 flex justify-center"
 				>
 					<button
 						onClick={toggleView}
-						className="inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-700 rounded-lg shadow-sm hover:bg-gray-50 transition-colors border border-gray-200"
+						className="inline-flex items-center border-0 shadow-none hover:cursor-pointer gap-2 px-6 py-3 rounded-full transition-colors font-semibold text-base group text-[#777]"
 					>
-						{showAll ? (
-							<>
-								<FaCompress className="text-gray-500" />
-								<span>{language === "ko" ? "접기" : "Collapse"}</span>
-							</>
-						) : (
-							<>
-								<FaExpand className="text-gray-500" />
-								<span>{language === "ko" ? "모두 보기" : "View All"}</span>
-							</>
-						)}
+						<span>
+							{showAll
+								? language === "ko"
+									? "사진 접기"
+									: "Collapse Photos"
+								: language === "ko"
+								? "사진 더보기"
+								: "View More Photos"}
+						</span>
+						<span className={`transition-transform duration-300 ${showAll ? "rotate-180" : ""}`}>▼</span>
 					</button>
 				</motion.div>
 			)}
@@ -208,7 +207,7 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 						initial={{ opacity: 0 }}
 						animate={{ opacity: 1 }}
 						exit={{ opacity: 0 }}
-						className="fixed inset-0 z-50"
+						className="fixed inset-0 z-999"
 						onClick={handleCloseModal}
 					>
 						{/* 배경 오버레이 */}
@@ -234,21 +233,6 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 							<motion.div
 								className="relative w-full h-full max-w-[95vw] max-h-[95vh]"
 								onClick={(e) => e.stopPropagation()}
-								drag="x"
-								dragConstraints={{ left: 0, right: 0 }}
-								onDragEnd={(event, info) => {
-									if (info.offset.x < -100) {
-										// 오른쪽으로 스와이프 → 다음 이미지
-										const currentIndex = images.findIndex((img) => img.src === selectedImage.src);
-										const nextIndex = (currentIndex + 1) % images.length;
-										setSelectedImage(images[nextIndex]);
-									} else if (info.offset.x > 100) {
-										// 왼쪽으로 스와이프 → 이전 이미지
-										const currentIndex = images.findIndex((img) => img.src === selectedImage.src);
-										const prevIndex = (currentIndex - 1 + images.length) % images.length;
-										setSelectedImage(images[prevIndex]);
-									}
-								}}
 							>
 								<Image
 									src={selectedImage.src}
@@ -264,7 +248,7 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 							{images.length > 1 && (
 								<>
 									<button
-										className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors z-10 bg-black/50 rounded-full p-3 disabled:opacity-50 disabled:cursor-not-allowed"
+										className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors z-10 bg-black/50 rounded-full p-2 disabled:opacity-50 disabled:cursor-not-allowed"
 										onClick={(e) => {
 											e.stopPropagation();
 											const currentIndex = images.findIndex((img) => img.src === selectedImage.src);
@@ -273,10 +257,10 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 										}}
 										aria-label="이전 이미지"
 									>
-										<FaChevronLeft size={24} />
+										<FaChevronLeft size={20} />
 									</button>
 									<button
-										className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors z-10 bg-black/50 rounded-full p-3 disabled:opacity-50 disabled:cursor-not-allowed"
+										className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors z-10 bg-black/50 rounded-full p-2 disabled:opacity-50 disabled:cursor-not-allowed"
 										onClick={(e) => {
 											e.stopPropagation();
 											const currentIndex = images.findIndex((img) => img.src === selectedImage.src);
@@ -285,7 +269,7 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 										}}
 										aria-label="다음 이미지"
 									>
-										<FaChevronRight size={24} />
+										<FaChevronRight size={20} />
 									</button>
 								</>
 							)}
