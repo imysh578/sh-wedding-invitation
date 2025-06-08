@@ -3,6 +3,10 @@ import { GalleryImage } from "./gallery";
 export type Language = "ko" | "en";
 
 export interface Person {
+	label: {
+		ko: string;
+		en: string;
+	};
 	name: {
 		ko: string;
 		en: string;

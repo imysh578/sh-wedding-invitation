@@ -9,6 +9,7 @@ import InvitationSection from "./components/InvitationSection";
 import WeddingDaySection from "./components/WeddingDaySection";
 import LocationSection from "./components/LocationSection";
 import GallerySection from "./components/GallerySection";
+import AccountSection from "./components/AccountSection";
 
 function LanguageToggle() {
 	const { language, toggleLanguage } = useLanguage();
@@ -44,6 +45,9 @@ function WeddingContent() {
 
 			{/* Gallery 섹션 */}
 			<GallerySection />
+
+			{/* Account 섹션 */}
+			<AccountSection />
 		</main>
 	);
 }
