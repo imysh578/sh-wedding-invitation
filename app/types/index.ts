@@ -126,5 +126,4 @@ export interface WeddingConfig {
 	brideMother: Person;
 	venue: Venue;
 	hero: HeroSection;
-	sections: Section[];
 }

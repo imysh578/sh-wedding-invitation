@@ -3,16 +3,16 @@ import { FaPhoneAlt, FaTimes } from "react-icons/fa";
 import { FaRegMessage } from "react-icons/fa6";
 import { useLanguage } from "../contexts/LanguageContext";
 import { weddingConfig } from "../config";
+import { invitation } from "../config/sections/invitation";
 import SectionTemplate from "./SectionTemplate";
 
 export default function InvitationSection({ backgroundColor }: { backgroundColor?: string }) {
 	const { language } = useLanguage();
-	const section = weddingConfig.sections.find((s) => s.id === "invitation");
 	const [modalOpen, setModalOpen] = useState(false);
 
-	if (!section) return null;
+	if (!invitation) return null;
 
-	const { subtitle, title, content, button } = section;
+	const { subtitle, title, content, button } = invitation;
 	const groom = weddingConfig.groom;
 	const bride = weddingConfig.bride;
 	const groomFather = weddingConfig.groomFather;
@@ -22,7 +22,7 @@ export default function InvitationSection({ backgroundColor }: { backgroundColor
 
 	return (
 		<SectionTemplate
-			id={section.id}
+			id={invitation.id}
 			title={title[language]}
 			subtitle={subtitle[language]}
 			backgroundColor={backgroundColor}

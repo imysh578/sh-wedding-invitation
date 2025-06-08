@@ -4,7 +4,6 @@ import { LanguageProvider } from "./contexts/LanguageContext";
 
 import { weddingConfig } from "./config";
 
-import { sections } from "./config/sections";
 import InvitationSection from "./components/InvitationSection";
 import WeddingDaySection from "./components/WeddingDaySection";
 import GallerySection from "./components/GallerySection";

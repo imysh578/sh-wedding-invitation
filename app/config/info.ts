@@ -68,7 +68,7 @@ export const brideMother: Person = {
 
 export const venue: Venue = {
 	name: "라루체 웨딩",
-	hall: "그레이스홀 5층",
+	hall: "5층 그레이스홀",
 	address: "서울 중구 퇴계로18길 46 라루체웨딩",
 	detailInfo: "4호선 명동역 3번 출구에서 도보 2분 (208m)",
 	parking: "웨딩홀 연계 주차장 이용 가능",

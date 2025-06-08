@@ -1,7 +1,7 @@
 import React from "react";
 import { useLanguage } from "../contexts/LanguageContext";
-import { weddingConfig } from "../config";
 import SectionTemplate from "./SectionTemplate";
+import { weddingDay } from "../config/sections/weddingDay";
 
 function getCalendarMatrix(year: number, month: number) {
 	const firstDay = new Date(year, month - 1, 1).getDay();
@@ -29,9 +29,8 @@ const WEEKDAYS = {
 
 export default function WeddingDaySection({ backgroundColor }: { backgroundColor?: string }) {
 	const { language } = useLanguage();
-	const section = weddingConfig.sections.find((s) => s.id === "weddingDay");
-	if (!section || !section.calendar) return null;
-	const { subtitle, title, calendar } = section;
+	if (!weddingDay || !weddingDay.calendar) return null;
+	const { subtitle, title, calendar } = weddingDay;
 	const { year, month, day, time } = calendar;
 	const weeks = getCalendarMatrix(year, month);
 
@@ -45,7 +44,7 @@ export default function WeddingDaySection({ backgroundColor }: { backgroundColor
 
 	return (
 		<SectionTemplate
-			id={section.id}
+			id={weddingDay.id}
 			title={title[language]}
 			subtitle={subtitle[language]}
 			backgroundColor={backgroundColor}

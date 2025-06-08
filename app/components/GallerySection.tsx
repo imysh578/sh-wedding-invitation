@@ -2,16 +2,15 @@ import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useLanguage } from "../contexts/LanguageContext";
-import { weddingConfig } from "../config";
 import { GalleryImage } from "../types/gallery";
 import { FaTimes, FaExpand, FaCompress, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import SectionTemplate from "./SectionTemplate";
+import { gallery } from "../config/sections/gallery";
 
 const GRID_VIEW_COUNT = 9; // 3x3 그리드에 표시할 이미지 수
 
 export default function GallerySection({ backgroundColor }: { backgroundColor?: string }) {
 	const { language } = useLanguage();
-	const section = weddingConfig.sections.find((s) => s.id === "gallery");
 	const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
 	const [images, setImages] = useState<GalleryImage[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
@@ -68,8 +67,20 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 		return showAll ? images : images.slice(0, GRID_VIEW_COUNT);
 	}, [showAll, images]);
 
-	if (!section) return null;
-	const { title, subtitle } = section;
+	// ESC 키로 모달 닫기
+	useEffect(() => {
+		if (!selectedImage) return;
+		const handleKeyDown = (e: KeyboardEvent) => {
+			if (e.key === "Escape") {
+				handleCloseModal();
+			}
+		};
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [selectedImage]);
+
+	if (!gallery) return null;
+	const { title, subtitle } = gallery;
 
 	const handleImageClick = (image: GalleryImage) => {
 		setSelectedImage(image);
@@ -89,7 +100,7 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 	if (isLoading) {
 		return (
 			<SectionTemplate
-				id={section.id}
+				id={gallery.id}
 				title={title[language]}
 				subtitle={subtitle[language]}
 				backgroundColor={backgroundColor}
@@ -109,7 +120,7 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 
 	if (error) {
 		return (
-			<SectionTemplate id={section.id} title={title[language]} subtitle={subtitle[language]}>
+			<SectionTemplate id={gallery.id} title={title[language]} subtitle={subtitle[language]}>
 				<p className="text-red-500">{error}</p>
 			</SectionTemplate>
 		);
@@ -121,7 +132,7 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 
 	return (
 		<SectionTemplate
-			id={section.id}
+			id={gallery.id}
 			title={title[language]}
 			subtitle={subtitle[language]}
 			backgroundColor={backgroundColor}
@@ -214,8 +225,31 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 								<FaTimes size={24} />
 							</button>
 
-							{/* 이미지 */}
-							<div className="relative w-full h-full max-w-[95vw] max-h-[95vh]" onClick={(e) => e.stopPropagation()}>
+							{/* 이미지 인덱스 표시 */}
+							{selectedImage && (
+								<div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 bg-black/60 text-white rounded-full px-4 py-1 text-sm font-semibold">
+									{images.findIndex((img) => img.src === selectedImage.src) + 1} / {images.length}
+								</div>
+							)}
+							<motion.div
+								className="relative w-full h-full max-w-[95vw] max-h-[95vh]"
+								onClick={(e) => e.stopPropagation()}
+								drag="x"
+								dragConstraints={{ left: 0, right: 0 }}
+								onDragEnd={(event, info) => {
+									if (info.offset.x < -100) {
+										// 오른쪽으로 스와이프 → 다음 이미지
+										const currentIndex = images.findIndex((img) => img.src === selectedImage.src);
+										const nextIndex = (currentIndex + 1) % images.length;
+										setSelectedImage(images[nextIndex]);
+									} else if (info.offset.x > 100) {
+										// 왼쪽으로 스와이프 → 이전 이미지
+										const currentIndex = images.findIndex((img) => img.src === selectedImage.src);
+										const prevIndex = (currentIndex - 1 + images.length) % images.length;
+										setSelectedImage(images[prevIndex]);
+									}
+								}}
+							>
 								<Image
 									src={selectedImage.src}
 									alt={selectedImage.alt}
@@ -224,7 +258,7 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 									sizes="95vw"
 									priority
 								/>
-							</div>
+							</motion.div>
 
 							{/* 이전/다음 버튼 */}
 							{images.length > 1 && (

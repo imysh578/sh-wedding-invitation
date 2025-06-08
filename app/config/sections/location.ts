@@ -4,7 +4,7 @@ export const location: Section = {
 	id: "location",
 	title: {
 		ko: "오시는 길",
-		en: "",
+		en: "Way to the venue",
 	},
 	subtitle: {
 		ko: "Location",
