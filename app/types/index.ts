@@ -112,6 +112,7 @@ export interface Section {
 		};
 		heart?: boolean;
 	};
+	backgroundColor?: string;
 }
 
 export interface WeddingConfig {

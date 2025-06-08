@@ -27,7 +27,7 @@ const WEEKDAYS = {
 	en: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
 };
 
-export default function WeddingDaySection() {
+export default function WeddingDaySection({ backgroundColor }: { backgroundColor?: string }) {
 	const { language } = useLanguage();
 	const section = weddingConfig.sections.find((s) => s.id === "weddingDay");
 	if (!section || !section.calendar) return null;
@@ -44,7 +44,12 @@ export default function WeddingDaySection() {
 			: `${weekday}, ${month}/${day}/${year}, ${time[language]}`;
 
 	return (
-		<SectionTemplate id={section.id} title={title[language]} subtitle={subtitle[language]}>
+		<SectionTemplate
+			id={section.id}
+			title={title[language]}
+			subtitle={subtitle[language]}
+			backgroundColor={backgroundColor}
+		>
 			<div className="flex flex-col justify-center items-center px-4">
 				{/* 달력 */}
 				<div className="w-full max-w-md bg-white rounded-xl p-4 shadow-sm">

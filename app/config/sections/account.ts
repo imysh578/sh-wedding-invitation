@@ -18,4 +18,5 @@ export const account: Section = {
 		en: ``,
 	},
 	animation: "fade", // 필요시 애니메이션 지정
+	backgroundColor: "#fff",
 };

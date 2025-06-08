@@ -14,7 +14,7 @@ const getAccountList = (side: "groom" | "bride") => {
 	}
 };
 
-export default function AccountSection() {
+export default function AccountSection({ backgroundColor }: { backgroundColor?: string }) {
 	const { language } = useLanguage();
 	const [openSide, setOpenSide] = useState<"groom" | "bride" | null>(null);
 	const [copied, setCopied] = useState<string | null>(null);
@@ -26,7 +26,12 @@ export default function AccountSection() {
 	};
 
 	return (
-		<SectionTemplate id="account" title={account.title[language]} subtitle={account.subtitle[language]}>
+		<SectionTemplate
+			id="account"
+			title={account.title[language]}
+			subtitle={account.subtitle[language]}
+			backgroundColor={backgroundColor}
+		>
 			<div className="flex flex-col gap-4 max-w-xs mx-auto">
 				<div className="text-center text-gray-700 text-sm mb-2">
 					{account.content?.[language]?.split("\n").map((line, i) =>

@@ -5,7 +5,7 @@ import { useLanguage } from "../contexts/LanguageContext";
 import { weddingConfig } from "../config";
 import SectionTemplate from "./SectionTemplate";
 
-export default function InvitationSection() {
+export default function InvitationSection({ backgroundColor }: { backgroundColor?: string }) {
 	const { language } = useLanguage();
 	const section = weddingConfig.sections.find((s) => s.id === "invitation");
 	const [modalOpen, setModalOpen] = useState(false);
@@ -21,7 +21,12 @@ export default function InvitationSection() {
 	const brideMother = weddingConfig.brideMother;
 
 	return (
-		<SectionTemplate id={section.id} title={title[language]} subtitle={subtitle[language]}>
+		<SectionTemplate
+			id={section.id}
+			title={title[language]}
+			subtitle={subtitle[language]}
+			backgroundColor={backgroundColor}
+		>
 			<p className="text-gray-600 whitespace-pre-line leading-relaxed mb-8">{content?.[language]}</p>
 			{/* 가족 정보 */}
 			<div className="text-gray-700 text-lg mb-8 max-w-xs mx-auto">

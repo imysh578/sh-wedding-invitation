@@ -9,7 +9,7 @@ import SectionTemplate from "./SectionTemplate";
 
 const GRID_VIEW_COUNT = 9; // 3x3 그리드에 표시할 이미지 수
 
-export default function GallerySection() {
+export default function GallerySection({ backgroundColor }: { backgroundColor?: string }) {
 	const { language } = useLanguage();
 	const section = weddingConfig.sections.find((s) => s.id === "gallery");
 	const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
@@ -88,7 +88,12 @@ export default function GallerySection() {
 
 	if (isLoading) {
 		return (
-			<SectionTemplate id={section.id} title={title[language]} subtitle={subtitle[language]}>
+			<SectionTemplate
+				id={section.id}
+				title={title[language]}
+				subtitle={subtitle[language]}
+				backgroundColor={backgroundColor}
+			>
 				<div className="animate-pulse">
 					<div className="h-8 bg-gray-200 rounded w-48 mx-auto mb-4"></div>
 					<div className="h-6 bg-gray-200 rounded w-64 mx-auto mb-12"></div>
@@ -115,7 +120,12 @@ export default function GallerySection() {
 	}
 
 	return (
-		<SectionTemplate id={section.id} title={title[language]} subtitle={subtitle[language]}>
+		<SectionTemplate
+			id={section.id}
+			title={title[language]}
+			subtitle={subtitle[language]}
+			backgroundColor={backgroundColor}
+		>
 			{/* 갤러리 그리드 */}
 			<motion.div
 				initial={{ opacity: 0, y: 20 }}

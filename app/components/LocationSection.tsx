@@ -13,7 +13,7 @@ const VENUE_COORDINATES: Coordinates = {
 	lng: 126.9857,
 };
 
-export default function LocationSection() {
+export default function LocationSection({ backgroundColor }: { backgroundColor?: string }) {
 	const { language } = useLanguage();
 	const { venue } = weddingConfig;
 	const mapRef = useRef<NaverMap | null>(null);
@@ -65,7 +65,12 @@ export default function LocationSection() {
 	}, [venue.name, venue.address]);
 
 	return (
-		<SectionTemplate id="location" title={location.title[language]} subtitle={location.subtitle[language]}>
+		<SectionTemplate
+			id="location"
+			title={location.title[language]}
+			subtitle={location.subtitle[language]}
+			backgroundColor={backgroundColor}
+		>
 			{/* 네이버 지도 API 스크립트 */}
 			<Script
 				strategy="afterInteractive"
