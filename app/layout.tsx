@@ -19,7 +19,14 @@ export const metadata: Metadata = {
 	openGraph: {
 		title: `${weddingConfig.meta.title}`,
 		description: `${weddingConfig.meta.description}`,
-		images: [weddingConfig.meta.ogImage],
+		images: [
+			{
+				url: weddingConfig.meta.ogImage,
+				width: 1200,
+				height: 630,
+				alt: "청첩장 썸네일",
+			},
+		],
 	},
 };
 
