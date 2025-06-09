@@ -127,27 +127,31 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 
 	// 터치 이벤트 핸들러
 	const handleTouchStart = (e: React.TouchEvent) => {
-		setTouchStart(e.targetTouches[0].clientX);
+		if (e.touches.length === 1) {
+			setTouchStart(e.targetTouches[0].clientX);
+		} else {
+			setTouchStart(null); // 멀티터치면 스와이프 무시
+		}
 	};
 
 	const handleTouchMove = (e: React.TouchEvent) => {
-		setTouchEnd(e.targetTouches[0].clientX);
+		if (e.touches.length === 1) {
+			setTouchEnd(e.targetTouches[0].clientX);
+		} else {
+			setTouchEnd(null);
+		}
 	};
 
-	const handleTouchEnd = () => {
-		if (!touchStart || !touchEnd) return;
+	const handleTouchEnd = (e: React.TouchEvent) => {
+		// 한 손가락 터치에서만 스와이프 동작
+		if (touchStart !== null && touchEnd !== null && e.changedTouches.length === 1) {
+			const distance = touchStart - touchEnd;
+			const isLeftSwipe = distance > 50;
+			const isRightSwipe = distance < -50;
 
-		const distance = touchStart - touchEnd;
-		const isLeftSwipe = distance > 50;
-		const isRightSwipe = distance < -50;
-
-		if (isLeftSwipe) {
-			handleModalNextImage();
+			if (isLeftSwipe) handleModalNextImage();
+			if (isRightSwipe) handleModalPrevImage();
 		}
-		if (isRightSwipe) {
-			handleModalPrevImage();
-		}
-
 		setTouchStart(null);
 		setTouchEnd(null);
 	};
