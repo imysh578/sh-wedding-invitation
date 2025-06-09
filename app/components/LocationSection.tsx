@@ -44,7 +44,7 @@ export default function LocationSection({ backgroundColor }: { backgroundColor?:
 					<div className="text-sm text-gray-500">{venue.address}</div>
 				</div>
 				{/* 동적 네이버 지도 */}
-				<div className="w-full h-[400px] rounded-2xl overflow-hidden shadow-lg mb-8">
+				<div className="w-full h-[300px] rounded-2xl overflow-hidden shadow-lg mb-8">
 					<Script
 						strategy="afterInteractive"
 						src={`https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID}`}

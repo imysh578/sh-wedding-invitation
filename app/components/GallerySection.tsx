@@ -15,7 +15,7 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 	const [images, setImages] = useState<GalleryImage[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
-	const [showAll, setShowAll] = useState(false);
+	const [currentPage, setCurrentPage] = useState(0);
 	const [slideDirection, setSlideDirection] = useState<"left" | "right" | null>(null);
 
 	// 이미지 프리로딩을 위한 상태
@@ -38,9 +38,7 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 				const response = await fetch("/api/gallery-images");
 				if (!response.ok) throw new Error("이미지를 불러오는데 실패했습니다");
 				const data = await response.json();
-				// 응답이 배열이 아니면 data.images로 할당
 				setImages(Array.isArray(data) ? data : data.images);
-				// 모든 이미지 프리로딩 시작
 				(Array.isArray(data) ? data : data.images).forEach((image: GalleryImage) => {
 					preloadImage(image.src);
 				});
@@ -50,40 +48,38 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 				setIsLoading(false);
 			}
 		};
-
 		fetchImages();
 	}, []);
 
-	// showAll이 변경될 때 추가 이미지 프리로딩
-	useEffect(() => {
-		if (showAll) {
-			images.slice(GRID_VIEW_COUNT).forEach((image) => {
-				preloadImage(image.src);
-			});
-		}
-	}, [showAll, images]);
+	// 캐러셀 페이지별 이미지
+	const totalPages = Math.ceil(images.length / GRID_VIEW_COUNT);
+	const pageImages = useMemo(() => {
+		const start = currentPage * GRID_VIEW_COUNT;
+		return images.slice(start, start + GRID_VIEW_COUNT);
+	}, [images, currentPage]);
 
-	// displayImages를 useMemo로 최적화
-	const displayImages = useMemo(() => {
-		return showAll ? images : images.slice(0, GRID_VIEW_COUNT);
-	}, [showAll, images]);
-
-	// ESC 키로 모달 닫기
+	// ESC 키로 모달 닫기 (모달이 열려있을 때만)
 	useEffect(() => {
 		if (!selectedImage) return;
+
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.key === "Escape") {
+				e.preventDefault();
+				e.stopPropagation();
 				handleCloseModal();
 			}
 		};
-		window.addEventListener("keydown", handleKeyDown);
-		return () => window.removeEventListener("keydown", handleKeyDown);
+
+		window.addEventListener("keydown", handleKeyDown, { capture: true });
+		return () => window.removeEventListener("keydown", handleKeyDown, { capture: true });
 	}, [selectedImage]);
 
 	if (!gallery) return null;
 	const { title, subtitle } = gallery;
 
-	const handleImageClick = (image: GalleryImage) => {
+	const handleImageClick = (image: GalleryImage, e: React.MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
 		setSelectedImage(image);
 		document.body.style.overflow = "hidden";
 	};
@@ -93,21 +89,77 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 		document.body.style.overflow = "auto";
 	};
 
-	const toggleView = () => {
-		setShowAll(!showAll);
-		// 스크롤 동작 제거
+	const handlePrevPage = (e?: React.MouseEvent) => {
+		if (e) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+		setSlideDirection("right");
+		setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
 	};
 
-	const handlePrev = () => {
-		setSlideDirection("right");
-		const currentIndex = images.findIndex((img) => img.src === selectedImage?.src);
+	const handleNextPage = (e?: React.MouseEvent) => {
+		if (e) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+		setSlideDirection("left");
+		setCurrentPage((prev) => (prev + 1) % totalPages);
+	};
+
+	// 그리드 드래그 핸들러 (모달이 닫혀있을 때만 동작)
+	const handleGridDragEnd = (
+		event: MouseEvent | TouchEvent | PointerEvent,
+		info: { offset: { x: number; y: number } }
+	) => {
+		if (selectedImage) return; // 모달이 열려있으면 그리드 드래그 무시
+
+		if (info.offset.x < -100) {
+			handleNextPage();
+		} else if (info.offset.x > 100) {
+			handlePrevPage();
+		}
+	};
+
+	// 모달 드래그 핸들러 (모달이 열려있을 때만 동작)
+	const handleModalDragEnd = (
+		event: MouseEvent | TouchEvent | PointerEvent,
+		info: { offset: { x: number; y: number } }
+	) => {
+		if (!selectedImage) return; // 모달이 닫혀있으면 모달 드래그 무시
+
+		if (info.offset.x < -100) {
+			setSlideDirection("left");
+			// 모달에서 다음 이미지로 이동
+			const currentIndex = images.findIndex((img) => img.src === selectedImage.src);
+			const nextIndex = (currentIndex + 1) % images.length;
+			setSelectedImage(images[nextIndex]);
+		} else if (info.offset.x > 100) {
+			setSlideDirection("right");
+			// 모달에서 이전 이미지로 이동
+			const currentIndex = images.findIndex((img) => img.src === selectedImage.src);
+			const prevIndex = (currentIndex - 1 + images.length) % images.length;
+			setSelectedImage(images[prevIndex]);
+		}
+	};
+
+	// 모달 내 이미지 네비게이션
+	const handleModalPrevImage = (e: React.MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+		if (!selectedImage) return;
+
+		const currentIndex = images.findIndex((img) => img.src === selectedImage.src);
 		const prevIndex = (currentIndex - 1 + images.length) % images.length;
 		setSelectedImage(images[prevIndex]);
 	};
 
-	const handleNext = () => {
-		setSlideDirection("left");
-		const currentIndex = images.findIndex((img) => img.src === selectedImage?.src);
+	const handleModalNextImage = (e: React.MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+		if (!selectedImage) return;
+
+		const currentIndex = images.findIndex((img) => img.src === selectedImage.src);
 		const nextIndex = (currentIndex + 1) % images.length;
 		setSelectedImage(images[nextIndex]);
 	};
@@ -152,68 +204,70 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 			subtitle={subtitle[language]}
 			backgroundColor={backgroundColor}
 		>
-			{/* 갤러리 그리드 */}
-			<motion.div
-				initial={{ opacity: 0, y: 20 }}
-				whileInView={{ opacity: 1, y: 0 }}
-				viewport={{ once: true }}
-				transition={{ duration: 0.5 }}
-				className="grid grid-cols-3 gap-4"
-			>
-				{displayImages.map((image, index) => (
-					<motion.div
-						key={image.src}
-						initial={{ opacity: 0, y: 20 }}
-						whileInView={{ opacity: 1, y: 0 }}
-						viewport={{ once: true }}
-						transition={{
-							duration: 0.5,
-							delay: index === 0 ? 0 : 0.1 + index * 0.05,
-						}}
-						className={`relative overflow-hidden rounded-lg cursor-pointer group ${
-							!showAll && index >= GRID_VIEW_COUNT ? "hidden" : ""
-						} aspect-square`}
-						onClick={() => handleImageClick(image)}
-					>
-						<Image
-							src={image.src}
-							alt={image.alt}
-							fill
-							className="object-cover object-center transition-transform duration-300 group-hover:scale-110"
-							sizes="33vw"
-							priority={index < 3}
-						/>
-						<div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
-					</motion.div>
-				))}
-			</motion.div>
+			{/* 3x3 그리드 캐러셀 - 다음/이전 그리드 미리보기 */}
+			<div className="relative overflow-hidden">
+				{/* 이전 페이지 미리보기 (왼쪽) */}
+				{currentPage > 0 && (
+					<div className="absolute left-0 top-0 w-8 h-full bg-gradient-to-r from-white/20 to-transparent z-10 pointer-events-none" />
+				)}
 
-			{/* 전체보기/접기 버튼 */}
-			{images.length > GRID_VIEW_COUNT && (
-				<motion.div
-					initial={{ opacity: 0, y: 20 }}
-					whileInView={{ opacity: 1, y: 0 }}
-					viewport={{ once: true }}
-					transition={{ duration: 0.5, delay: 0.6 }}
-					className="mt-8 flex justify-center"
-				>
-					<button
-						onClick={toggleView}
-						className="inline-flex items-center border-0 shadow-none hover:cursor-pointer gap-2 px-6 py-3 rounded-full transition-colors font-semibold text-base group text-[#777]"
+				{/* 다음 페이지 미리보기 (오른쪽) */}
+				{currentPage < totalPages - 1 && (
+					<div className="absolute right-0 top-0 w-8 h-full bg-gradient-to-l from-white/20 to-transparent z-10 pointer-events-none" />
+				)}
+
+				<AnimatePresence custom={slideDirection} mode="popLayout">
+					<motion.div
+						key={currentPage}
+						custom={slideDirection}
+						initial={{ x: slideDirection === "left" ? 300 : slideDirection === "right" ? -300 : 0, opacity: 0 }}
+						animate={{ x: 0, opacity: 1 }}
+						exit={{ x: slideDirection === "left" ? -300 : slideDirection === "right" ? 300 : 0, opacity: 0 }}
+						transition={{ duration: 0.45, ease: "easeInOut" }}
+						className="grid grid-cols-3 gap-4"
+						drag={!selectedImage ? "x" : false} // 모달이 열려있으면 드래그 비활성화
+						dragConstraints={{ left: 0, right: 0 }}
+						onDragEnd={handleGridDragEnd}
 					>
-						<span>
-							{showAll
-								? language === "ko"
-									? "사진 접기"
-									: "Collapse Photos"
-								: language === "ko"
-								? "사진 더보기"
-								: "View More Photos"}
-						</span>
-						<span className={`transition-transform duration-300 ${showAll ? "rotate-180" : ""}`}>▼</span>
-					</button>
-				</motion.div>
-			)}
+						{pageImages.map((image) => (
+							<div
+								key={image.src}
+								className="relative overflow-hidden rounded-lg cursor-pointer group aspect-square"
+								onClick={(e) => handleImageClick(image, e)}
+							>
+								<Image
+									src={image.src}
+									alt={image.alt}
+									fill
+									className="object-cover object-center transition-transform duration-300 group-hover:scale-110"
+									sizes="33vw"
+									priority={false}
+								/>
+								<div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+							</div>
+						))}
+					</motion.div>
+				</AnimatePresence>
+
+				{/* 페이지 인디케이터 */}
+				{totalPages > 1 && (
+					<div className="flex justify-center mt-4 gap-2">
+						{Array.from({ length: totalPages }, (_, i) => (
+							<button
+								key={i}
+								onClick={() => {
+									setSlideDirection(i > currentPage ? "left" : "right");
+									setCurrentPage(i);
+								}}
+								className={`w-2 h-2 rounded-full transition-all duration-300 ${
+									i === currentPage ? "bg-gray-600 w-6" : "bg-gray-300 hover:bg-gray-400"
+								}`}
+								aria-label={`${i + 1}페이지로 이동`}
+							/>
+						))}
+					</div>
+				)}
+			</div>
 
 			{/* 이미지 모달 */}
 			<AnimatePresence>
@@ -233,7 +287,11 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 							{/* 닫기 버튼 */}
 							<button
 								className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-10 bg-black/50 rounded-full p-2"
-								onClick={handleCloseModal}
+								onClick={(e) => {
+									e.preventDefault();
+									e.stopPropagation();
+									handleCloseModal();
+								}}
 								aria-label="닫기"
 							>
 								<FaTimes size={24} />
@@ -245,6 +303,7 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 									{images.findIndex((img) => img.src === selectedImage.src) + 1} / {images.length}
 								</div>
 							)}
+
 							<AnimatePresence custom={slideDirection} mode="popLayout">
 								{selectedImage && (
 									<motion.div
@@ -258,15 +317,7 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 										onClick={(e) => e.stopPropagation()}
 										drag="x"
 										dragConstraints={{ left: 0, right: 0 }}
-										onDragEnd={(event, info) => {
-											if (info.offset.x < -100) {
-												setSlideDirection("left");
-												handleNext();
-											} else if (info.offset.x > 100) {
-												setSlideDirection("right");
-												handlePrev();
-											}
-										}}
+										onDragEnd={handleModalDragEnd}
 									>
 										<Image
 											src={selectedImage.src}
@@ -285,20 +336,14 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 								<>
 									<button
 										className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors z-10 bg-black/50 rounded-full p-2 disabled:opacity-50 disabled:cursor-not-allowed"
-										onClick={(e) => {
-											e.stopPropagation();
-											handlePrev();
-										}}
+										onClick={handleModalPrevImage}
 										aria-label="이전 이미지"
 									>
 										<FaChevronLeft size={20} />
 									</button>
 									<button
 										className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors z-10 bg-black/50 rounded-full p-2 disabled:opacity-50 disabled:cursor-not-allowed"
-										onClick={(e) => {
-											e.stopPropagation();
-											handleNext();
-										}}
+										onClick={handleModalNextImage}
 										aria-label="다음 이미지"
 									>
 										<FaChevronRight size={20} />

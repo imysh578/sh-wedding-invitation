@@ -14,6 +14,7 @@ import { useLanguage } from "./contexts/LanguageContext";
 import { FaGlobe } from "react-icons/fa";
 import HeroSection from "./components/HeroSection";
 import LocationSection from "./components/LocationSection";
+import NoticeSection from "./components/NoticeSection";
 
 function LanguageToggle() {
 	const { language, toggleLanguage } = useLanguage();
@@ -48,6 +49,7 @@ function WeddingContent() {
 			<LocationSection backgroundColor={white} />
 			<GallerySection backgroundColor={gray} />
 			<AccountSection backgroundColor={white} />
+			<NoticeSection backgroundColor={gray} />
 		</main>
 	);
 }
