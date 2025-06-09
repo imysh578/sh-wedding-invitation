@@ -16,11 +16,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
 	title: `${weddingConfig.meta.title}`,
 	description: `${weddingConfig.meta.description}`,
-	openGraph: {
-		title: `${weddingConfig.meta.title}`,
-		description: `${weddingConfig.meta.description}`,
-		images: [weddingConfig.meta.ogImage],
-	},
 };
 
 export default function RootLayout({
