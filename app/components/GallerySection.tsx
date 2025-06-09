@@ -18,6 +18,11 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 	const [currentPage, setCurrentPage] = useState(0);
 	const [slideDirection, setSlideDirection] = useState<"left" | "right" | null>(null);
 
+	// 썸네일 경로 변환 함수
+	const getThumbnailPath = (originalPath: string) => {
+		return originalPath.replace("/images/gallery/", "/images/gallery/thumbnails/");
+	};
+
 	// 이미지 프리로딩을 위한 상태
 	const [preloadedImages, setPreloadedImages] = useState<Set<string>>(new Set());
 
@@ -31,6 +36,40 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 		};
 	};
 
+	// 캐러셀 페이지별 이미지
+	const totalPages = Math.ceil(images.length / GRID_VIEW_COUNT);
+	const pageImages = useMemo(() => {
+		const start = currentPage * GRID_VIEW_COUNT;
+		return images.slice(start, start + GRID_VIEW_COUNT);
+	}, [images, currentPage]);
+
+	// 점진적 프리로딩 함수 - 현재 페이지 + 다음/이전 페이지만 프리로딩
+	const preloadCurrentAndAdjacentPages = (currentPageIndex: number) => {
+		const pagesToPreload = [currentPageIndex];
+
+		// 이전 페이지가 있으면 추가
+		if (currentPageIndex > 0) {
+			pagesToPreload.push(currentPageIndex - 1);
+		}
+
+		// 다음 페이지가 있으면 추가
+		if (currentPageIndex < totalPages - 1) {
+			pagesToPreload.push(currentPageIndex + 1);
+		}
+
+		// 해당 페이지들의 이미지들만 프리로딩
+		pagesToPreload.forEach((pageIndex) => {
+			const start = pageIndex * GRID_VIEW_COUNT;
+			const pageImages = images.slice(start, start + GRID_VIEW_COUNT);
+			pageImages.forEach((image) => {
+				// 그리드용 썸네일 프리로딩
+				preloadImage(getThumbnailPath(image.src));
+				// 모달용 원본 이미지도 프리로딩
+				preloadImage(image.src);
+			});
+		});
+	};
+
 	// 이미지 데이터 가져오기
 	useEffect(() => {
 		const fetchImages = async () => {
@@ -39,7 +78,13 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 				if (!response.ok) throw new Error("이미지를 불러오는데 실패했습니다");
 				const data = await response.json();
 				setImages(Array.isArray(data) ? data : data.images);
-				(Array.isArray(data) ? data : data.images).forEach((image: GalleryImage) => {
+				// 초기 로딩 시에는 첫 번째 페이지만 프리로딩
+				const initialImages = Array.isArray(data) ? data : data.images;
+				const firstPageImages = initialImages.slice(0, GRID_VIEW_COUNT);
+				firstPageImages.forEach((image: GalleryImage) => {
+					// 그리드용 썸네일 프리로딩
+					preloadImage(getThumbnailPath(image.src));
+					// 모달용 원본 이미지도 프리로딩
 					preloadImage(image.src);
 				});
 			} catch (err) {
@@ -51,12 +96,12 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 		fetchImages();
 	}, []);
 
-	// 캐러셀 페이지별 이미지
-	const totalPages = Math.ceil(images.length / GRID_VIEW_COUNT);
-	const pageImages = useMemo(() => {
-		const start = currentPage * GRID_VIEW_COUNT;
-		return images.slice(start, start + GRID_VIEW_COUNT);
-	}, [images, currentPage]);
+	// 페이지 변경 시 점진적 프리로딩
+	useEffect(() => {
+		if (images.length > 0 && totalPages > 0) {
+			preloadCurrentAndAdjacentPages(currentPage);
+		}
+	}, [currentPage, images, totalPages]);
 
 	// ESC 키로 모달 닫기 (모달이 열려있을 때만)
 	useEffect(() => {
@@ -236,7 +281,7 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 								onClick={(e) => handleImageClick(image, e)}
 							>
 								<Image
-									src={image.src}
+									src={getThumbnailPath(image.src)}
 									alt={image.alt}
 									fill
 									className="object-cover object-center transition-transform duration-300 group-hover:scale-110"
