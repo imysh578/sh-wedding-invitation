@@ -7,6 +7,6 @@ export const hero: HeroSection = {
 		ko: "2025년 9월 13일 토요일 오후 5시 30분\n라루체 웨딩 그레이스홀",
 		en: "September 13, 2025 Sat 5:30 PM\nLa Ruche Wedding Grace Hall",
 	},
-	image: "/images/hero/main.jpg",
+	image: "/images/hero/index.jpg",
 	animation: "fade",
 };

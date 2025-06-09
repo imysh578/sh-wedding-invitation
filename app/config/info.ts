@@ -3,7 +3,7 @@ import { Meta, Person, Venue } from "../types";
 export const meta: Meta = {
 	title: "윤석훈 ❤️ 김세희 결혼합니다.",
 	description: "2025.9.13 (토) PM 5:30, 명동 라루체 웨딩 그레이스홀",
-	ogImage: "/images/hero/main.jpg",
+	ogImage: "/images/hero/index.jpg",
 };
 
 export const groom: Person = {
