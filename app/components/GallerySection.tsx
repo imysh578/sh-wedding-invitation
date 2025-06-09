@@ -20,6 +20,10 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 	const [modalSlideDirection, setModalSlideDirection] = useState<"left" | "right" | null>(null);
 	const [modalAnimationType, setModalAnimationType] = useState<"slide" | "fade" | null>(null);
 
+	// 터치 이벤트 상태 추가
+	const [touchStart, setTouchStart] = useState<number | null>(null);
+	const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
 	// 썸네일 경로 변환 함수
 	const getThumbnailPath = (originalPath: string) => {
 		return originalPath.replace("/images/gallery/", "/images/gallery/thumbnails/");
@@ -121,6 +125,33 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 		return () => window.removeEventListener("keydown", handleKeyDown, { capture: true });
 	}, [selectedImage]);
 
+	// 터치 이벤트 핸들러
+	const handleTouchStart = (e: React.TouchEvent) => {
+		setTouchStart(e.targetTouches[0].clientX);
+	};
+
+	const handleTouchMove = (e: React.TouchEvent) => {
+		setTouchEnd(e.targetTouches[0].clientX);
+	};
+
+	const handleTouchEnd = () => {
+		if (!touchStart || !touchEnd) return;
+
+		const distance = touchStart - touchEnd;
+		const isLeftSwipe = distance > 50;
+		const isRightSwipe = distance < -50;
+
+		if (isLeftSwipe) {
+			handleModalNextImage();
+		}
+		if (isRightSwipe) {
+			handleModalPrevImage();
+		}
+
+		setTouchStart(null);
+		setTouchEnd(null);
+	};
+
 	if (!gallery) return null;
 	const { title, subtitle } = gallery;
 
@@ -172,34 +203,12 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 		}
 	};
 
-	// 모달 드래그 핸들러 (모달이 열려있을 때만 동작)
-	const handleModalDragEnd = (
-		event: MouseEvent | TouchEvent | PointerEvent,
-		info: { offset: { x: number; y: number } }
-	) => {
-		if (!selectedImage) return; // 모달이 닫혀있으면 모달 드래그 무시
-
-		if (info.offset.x < -100) {
-			setModalSlideDirection("left");
-			setModalAnimationType("slide");
-			// 모달에서 다음 이미지로 이동
-			const currentIndex = images.findIndex((img) => img.src === selectedImage.src);
-			const nextIndex = (currentIndex + 1) % images.length;
-			setSelectedImage(images[nextIndex]);
-		} else if (info.offset.x > 100) {
-			setModalSlideDirection("right");
-			setModalAnimationType("slide");
-			// 모달에서 이전 이미지로 이동
-			const currentIndex = images.findIndex((img) => img.src === selectedImage.src);
-			const prevIndex = (currentIndex - 1 + images.length) % images.length;
-			setSelectedImage(images[prevIndex]);
-		}
-	};
-
 	// 모달 내 이미지 네비게이션
-	const handleModalPrevImage = (e: React.MouseEvent) => {
-		e.preventDefault();
-		e.stopPropagation();
+	const handleModalPrevImage = (e?: React.MouseEvent) => {
+		if (e) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
 		if (!selectedImage) return;
 
 		setModalSlideDirection("right");
@@ -209,9 +218,11 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 		setSelectedImage(images[prevIndex]);
 	};
 
-	const handleModalNextImage = (e: React.MouseEvent) => {
-		e.preventDefault();
-		e.stopPropagation();
+	const handleModalNextImage = (e?: React.MouseEvent) => {
+		if (e) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
 		if (!selectedImage) return;
 
 		setModalSlideDirection("left");
@@ -392,10 +403,10 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 											}
 											transition={{ duration: 0.6, ease: "easeInOut" }}
 											className="relative pointer-events-auto"
-											style={{ maxWidth: "95vw", maxHeight: "95vh" }}
-											drag="x"
-											dragConstraints={{ left: 0, right: 0 }}
-											onDragEnd={handleModalDragEnd}
+											style={{ maxWidth: "95vw", maxHeight: "95vh", touchAction: "auto" }}
+											onTouchStart={handleTouchStart}
+											onTouchMove={handleTouchMove}
+											onTouchEnd={handleTouchEnd}
 										>
 											<Image
 												src={selectedImage.src}
