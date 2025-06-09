@@ -16,18 +16,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
 	title: `${weddingConfig.meta.title}`,
 	description: `${weddingConfig.meta.description}`,
-	openGraph: {
-		title: `${weddingConfig.meta.title}`,
-		description: `${weddingConfig.meta.description}`,
-		images: [
-			{
-				url: weddingConfig.meta.ogImage,
-				width: 1200,
-				height: 630,
-				alt: "청첩장 썸네일",
-			},
-		],
-	},
 };
 
 export default function RootLayout({
