@@ -17,6 +17,8 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 	const [error, setError] = useState<string | null>(null);
 	const [currentPage, setCurrentPage] = useState(0);
 	const [slideDirection, setSlideDirection] = useState<"left" | "right" | null>(null);
+	const [modalSlideDirection, setModalSlideDirection] = useState<"left" | "right" | null>(null);
+	const [modalAnimationType, setModalAnimationType] = useState<"slide" | "fade" | null>(null);
 
 	// 썸네일 경로 변환 함수
 	const getThumbnailPath = (originalPath: string) => {
@@ -126,11 +128,15 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 		e.preventDefault();
 		e.stopPropagation();
 		setSelectedImage(image);
+		setModalSlideDirection(null);
+		setModalAnimationType(null);
 		document.body.style.overflow = "hidden";
 	};
 
 	const handleCloseModal = () => {
 		setSelectedImage(null);
+		setModalSlideDirection(null);
+		setModalAnimationType(null);
 		document.body.style.overflow = "auto";
 	};
 
@@ -174,13 +180,15 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 		if (!selectedImage) return; // 모달이 닫혀있으면 모달 드래그 무시
 
 		if (info.offset.x < -100) {
-			setSlideDirection("left");
+			setModalSlideDirection("left");
+			setModalAnimationType("slide");
 			// 모달에서 다음 이미지로 이동
 			const currentIndex = images.findIndex((img) => img.src === selectedImage.src);
 			const nextIndex = (currentIndex + 1) % images.length;
 			setSelectedImage(images[nextIndex]);
 		} else if (info.offset.x > 100) {
-			setSlideDirection("right");
+			setModalSlideDirection("right");
+			setModalAnimationType("slide");
 			// 모달에서 이전 이미지로 이동
 			const currentIndex = images.findIndex((img) => img.src === selectedImage.src);
 			const prevIndex = (currentIndex - 1 + images.length) % images.length;
@@ -194,6 +202,8 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 		e.stopPropagation();
 		if (!selectedImage) return;
 
+		setModalSlideDirection("right");
+		setModalAnimationType("fade");
 		const currentIndex = images.findIndex((img) => img.src === selectedImage.src);
 		const prevIndex = (currentIndex - 1 + images.length) % images.length;
 		setSelectedImage(images[prevIndex]);
@@ -204,6 +214,8 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 		e.stopPropagation();
 		if (!selectedImage) return;
 
+		setModalSlideDirection("left");
+		setModalAnimationType("fade");
 		const currentIndex = images.findIndex((img) => img.src === selectedImage.src);
 		const nextIndex = (currentIndex + 1) % images.length;
 		setSelectedImage(images[nextIndex]);
@@ -317,21 +329,26 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 			{/* 이미지 모달 */}
 			<AnimatePresence>
 				{selectedImage && (
-					<motion.div
-						initial={{ opacity: 0 }}
-						animate={{ opacity: 1 }}
-						exit={{ opacity: 0 }}
-						className="fixed inset-0 z-999"
-						onClick={handleCloseModal}
-					>
-						{/* 배경 오버레이 */}
-						<div className="absolute inset-0 bg-black/95" />
+					<>
+						{/* 배경 오버레이 - 클릭 시 모달 닫기 */}
+						<motion.div
+							initial={{ opacity: 0 }}
+							animate={{ opacity: 1 }}
+							exit={{ opacity: 0 }}
+							className="fixed inset-0 bg-black/95 z-40"
+							onClick={handleCloseModal}
+						/>
 
 						{/* 모달 컨텐츠 */}
-						<div className="relative w-full h-full flex items-center justify-center">
+						<motion.div
+							initial={{ opacity: 0 }}
+							animate={{ opacity: 1 }}
+							exit={{ opacity: 0 }}
+							className="fixed inset-0 z-50 pointer-events-none"
+						>
 							{/* 닫기 버튼 */}
 							<button
-								className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-10 bg-black/50 rounded-full p-2"
+								className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors z-10 bg-black/50 rounded-full p-2 pointer-events-auto"
 								onClick={(e) => {
 									e.preventDefault();
 									e.stopPropagation();
@@ -344,50 +361,69 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 
 							{/* 이미지 인덱스 표시 */}
 							{selectedImage && (
-								<div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 bg-black/60 text-white rounded-full px-4 py-1 text-sm font-semibold">
+								<div className="absolute top-4 left-1/2 -translate-x-1/2 z-10 bg-black/60 text-white rounded-full px-4 py-1 text-sm font-semibold pointer-events-auto">
 									{images.findIndex((img) => img.src === selectedImage.src) + 1} / {images.length}
 								</div>
 							)}
 
-							<AnimatePresence custom={slideDirection} mode="popLayout">
-								{selectedImage && (
-									<motion.div
-										key={selectedImage.src}
-										custom={slideDirection}
-										initial={{ x: slideDirection === "left" ? 300 : slideDirection === "right" ? -300 : 0, opacity: 0 }}
-										animate={{ x: 0, opacity: 1 }}
-										exit={{ x: slideDirection === "left" ? -300 : slideDirection === "right" ? 300 : 0, opacity: 0 }}
-										transition={{ duration: 0.6, ease: "easeInOut" }}
-										className="relative w-full h-full max-w-[95vw] max-h-[95vh]"
-										onClick={(e) => e.stopPropagation()}
-										drag="x"
-										dragConstraints={{ left: 0, right: 0 }}
-										onDragEnd={handleModalDragEnd}
-									>
-										<Image
-											src={selectedImage.src}
-											alt={selectedImage.alt}
-											fill
-											className="object-contain"
-											sizes="95vw"
-											priority
-										/>
-									</motion.div>
-								)}
-							</AnimatePresence>
+							{/* 이미지 컨테이너 */}
+							<div className="relative w-full h-full flex items-center justify-center pointer-events-none">
+								<AnimatePresence custom={modalSlideDirection} mode="popLayout">
+									{selectedImage && (
+										<motion.div
+											key={selectedImage.src}
+											custom={modalSlideDirection}
+											initial={
+												modalAnimationType === "slide"
+													? {
+															x: modalSlideDirection === "left" ? 300 : modalSlideDirection === "right" ? -300 : 0,
+															opacity: 1,
+													  }
+													: { opacity: 0 }
+											}
+											animate={{ x: 0, opacity: 1 }}
+											exit={
+												modalAnimationType === "slide"
+													? {
+															x: modalSlideDirection === "left" ? -300 : modalSlideDirection === "right" ? 300 : 0,
+															opacity: 1,
+													  }
+													: { opacity: 0 }
+											}
+											transition={{ duration: 0.6, ease: "easeInOut" }}
+											className="relative pointer-events-auto"
+											style={{ maxWidth: "95vw", maxHeight: "95vh" }}
+											drag="x"
+											dragConstraints={{ left: 0, right: 0 }}
+											onDragEnd={handleModalDragEnd}
+										>
+											<Image
+												src={selectedImage.src}
+												alt={selectedImage.alt}
+												width={0}
+												height={0}
+												className="object-contain w-auto h-auto max-w-[95vw] max-h-[95vh]"
+												sizes="95vw"
+												priority
+												style={{ width: "auto", height: "auto" }}
+											/>
+										</motion.div>
+									)}
+								</AnimatePresence>
+							</div>
 
 							{/* 이전/다음 버튼 */}
 							{images.length > 1 && (
 								<>
 									<button
-										className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors z-10 bg-black/50 rounded-full p-2 disabled:opacity-50 disabled:cursor-not-allowed"
+										className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors z-10 bg-black/50 rounded-full p-2 disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto"
 										onClick={handleModalPrevImage}
 										aria-label="이전 이미지"
 									>
 										<FaChevronLeft size={20} />
 									</button>
 									<button
-										className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors z-10 bg-black/50 rounded-full p-2 disabled:opacity-50 disabled:cursor-not-allowed"
+										className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 transition-colors z-10 bg-black/50 rounded-full p-2 disabled:opacity-50 disabled:cursor-not-allowed pointer-events-auto"
 										onClick={handleModalNextImage}
 										aria-label="다음 이미지"
 									>
@@ -395,8 +431,8 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 									</button>
 								</>
 							)}
-						</div>
-					</motion.div>
+						</motion.div>
+					</>
 				)}
 			</AnimatePresence>
 		</SectionTemplate>
