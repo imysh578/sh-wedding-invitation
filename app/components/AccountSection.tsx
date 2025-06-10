@@ -33,7 +33,7 @@ export default function AccountSection({ backgroundColor }: { backgroundColor?: 
 			backgroundColor={backgroundColor}
 		>
 			<div className="flex flex-col gap-4 max-w-xs mx-auto">
-				<div className="text-center text-gray-700 text-sm mb-2">
+				<div className="text-center text-gray-700 text-lg mb-2">
 					{account.content?.[language]?.split("\n").map((line, i) =>
 						i === 0 ? (
 							line

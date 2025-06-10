@@ -15,7 +15,7 @@ export default function HeroSection() {
 	const place = placeLines.join(" ");
 
 	return (
-		<section className="relative h-screen w-full flex flex-col justify-bet">
+		<section className="relative h-screen w-full flex flex-col justify-between">
 			{/* 배경 이미지 */}
 			<div className="absolute inset-0">
 				<Image src={image} alt="Wedding Background" fill priority className="object-cover" sizes="100vw" />
@@ -25,7 +25,7 @@ export default function HeroSection() {
 
 			{/* 상단 announcement */}
 			<div className="relative z-10 flex flex-col items-center pt-24">
-				<motion.h1
+				<motion.h2
 					initial={{ opacity: 0, y: -30 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 1 }}
@@ -33,7 +33,7 @@ export default function HeroSection() {
 					style={{ textShadow: "0 4px 16px rgba(0,0,0,0.25)" }}
 				>
 					{announcement}
-				</motion.h1>
+				</motion.h2>
 			</div>
 
 			{/* 하단 카드 */}
@@ -42,7 +42,7 @@ export default function HeroSection() {
 					initial={{ opacity: 0, y: 40 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 1, delay: 0.3 }}
-					className=" rounded-2xl shadow-xl px-8 py-8 w-[90%] max-w-md text-center"
+					className=" rounded-2xl px-8 py-8 w-[90%] max-w-md text-center"
 				>
 					{/* 이름 + 하트 */}
 					<div className="flex items-center justify-center gap-3 mb-4">

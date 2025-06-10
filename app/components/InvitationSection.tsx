@@ -27,7 +27,7 @@ export default function InvitationSection({ backgroundColor }: { backgroundColor
 			subtitle={subtitle[language]}
 			backgroundColor={backgroundColor}
 		>
-			<p className="text-gray-600 whitespace-pre-line leading-relaxed mb-8">{content?.[language]}</p>
+			<p className="text-gray-600 whitespace-pre-line leading-relaxed mb-8 text-md">{content?.[language]}</p>
 			{/* 가족 정보 */}
 			<div className="text-gray-700 text-lg mb-8 max-w-xs mx-auto">
 				<hr className="my-8 border-gray-200" />
