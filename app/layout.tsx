@@ -13,6 +13,9 @@ const geistMono = Geist_Mono({
 	subsets: ["latin"],
 });
 
+// 절대경로용 SITE_URL 환경변수 사용
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://your-domain.com";
+
 export const metadata: Metadata = {
 	title: `${weddingConfig.meta.title}`,
 	description: `${weddingConfig.meta.description}`,
@@ -21,7 +24,7 @@ export const metadata: Metadata = {
 		description: `${weddingConfig.meta.description}`,
 		images: [
 			{
-				url: weddingConfig.meta.ogImage,
+				url: `${SITE_URL}${weddingConfig.meta.ogImage}`,
 				width: 1200,
 				height: 630,
 				alt: "청첩장 썸네일",
