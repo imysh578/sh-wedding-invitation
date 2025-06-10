@@ -24,6 +24,10 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 	const [touchStart, setTouchStart] = useState<number | null>(null);
 	const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
+	// 그리드 터치 상태 추가
+	const [gridTouchStart, setGridTouchStart] = useState<{ x: number; y: number } | null>(null);
+	const [gridTouchEnd, setGridTouchEnd] = useState<{ x: number; y: number } | null>(null);
+
 	// 썸네일 경로 변환 함수
 	const getThumbnailPath = (originalPath: string) => {
 		return originalPath.replace("/images/gallery/", "/images/gallery/thumbnails/");
@@ -193,20 +197,6 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 		setCurrentPage((prev) => (prev + 1) % totalPages);
 	};
 
-	// 그리드 드래그 핸들러 (모달이 닫혀있을 때만 동작)
-	const handleGridDragEnd = (
-		event: MouseEvent | TouchEvent | PointerEvent,
-		info: { offset: { x: number; y: number } }
-	) => {
-		if (selectedImage) return; // 모달이 열려있으면 그리드 드래그 무시
-
-		if (info.offset.x < -100) {
-			handleNextPage();
-		} else if (info.offset.x > 100) {
-			handlePrevPage();
-		}
-	};
-
 	// 모달 내 이미지 네비게이션
 	const handleModalPrevImage = (e?: React.MouseEvent) => {
 		if (e) {
@@ -234,6 +224,39 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 		const currentIndex = images.findIndex((img) => img.src === selectedImage.src);
 		const nextIndex = (currentIndex + 1) % images.length;
 		setSelectedImage(images[nextIndex]);
+	};
+
+	// 그리드 터치 상태 추가
+	const handleGridTouchStart = (e: React.TouchEvent) => {
+		if (e.touches.length === 1) {
+			setGridTouchStart({
+				x: e.targetTouches[0].clientX,
+				y: e.targetTouches[0].clientY,
+			});
+		}
+	};
+
+	const handleGridTouchMove = (e: React.TouchEvent) => {
+		if (e.touches.length === 1) {
+			setGridTouchEnd({
+				x: e.targetTouches[0].clientX,
+				y: e.targetTouches[0].clientY,
+			});
+		}
+	};
+
+	const handleGridTouchEnd = () => {
+		if (gridTouchStart && gridTouchEnd) {
+			const dx = gridTouchEnd.x - gridTouchStart.x;
+			const dy = gridTouchEnd.y - gridTouchStart.y;
+			if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+				// 수평 스와이프만 페이지 넘김
+				if (dx < 0) handleNextPage();
+				else handlePrevPage();
+			}
+		}
+		setGridTouchStart(null);
+		setGridTouchEnd(null);
 	};
 
 	if (isLoading) {
@@ -297,9 +320,10 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 						exit={{ x: slideDirection === "left" ? -300 : slideDirection === "right" ? 300 : 0, opacity: 0 }}
 						transition={{ duration: 0.45, ease: "easeInOut" }}
 						className="grid grid-cols-3 gap-4"
-						drag={!selectedImage ? "x" : false} // 모달이 열려있으면 드래그 비활성화
-						dragConstraints={{ left: 0, right: 0 }}
-						onDragEnd={handleGridDragEnd}
+						drag={false} // 모바일에서 drag 비활성화
+						onTouchStart={handleGridTouchStart}
+						onTouchMove={handleGridTouchMove}
+						onTouchEnd={handleGridTouchEnd}
 					>
 						{pageImages.map((image) => (
 							<div
