@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 // 절대경로용 SITE_URL 환경변수 사용
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://your-domain.com";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "";
 
 export const metadata: Metadata = {
 	title: `${weddingConfig.meta.title}`,
