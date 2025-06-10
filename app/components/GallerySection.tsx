@@ -27,6 +27,7 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 	// 그리드 터치 상태 추가
 	const [gridTouchStart, setGridTouchStart] = useState<{ x: number; y: number } | null>(null);
 	const [gridTouchEnd, setGridTouchEnd] = useState<{ x: number; y: number } | null>(null);
+	const [isGridSwiping, setIsGridSwiping] = useState(false);
 
 	// 썸네일 경로 변환 함수
 	const getThumbnailPath = (originalPath: string) => {
@@ -170,6 +171,7 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 		setModalSlideDirection(null);
 		setModalAnimationType(null);
 		document.body.style.overflow = "hidden";
+		document.body.classList.add("modal-open");
 	};
 
 	const handleCloseModal = () => {
@@ -177,6 +179,7 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 		setModalSlideDirection(null);
 		setModalAnimationType(null);
 		document.body.style.overflow = "auto";
+		document.body.classList.remove("modal-open");
 	};
 
 	const handlePrevPage = (e?: React.MouseEvent) => {
@@ -233,11 +236,18 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 				x: e.targetTouches[0].clientX,
 				y: e.targetTouches[0].clientY,
 			});
+			setIsGridSwiping(false);
 		}
 	};
 
 	const handleGridTouchMove = (e: React.TouchEvent) => {
-		if (e.touches.length === 1) {
+		if (e.touches.length === 1 && gridTouchStart) {
+			const dx = e.targetTouches[0].clientX - gridTouchStart.x;
+			const dy = e.targetTouches[0].clientY - gridTouchStart.y;
+			if (Math.abs(dx) > 30 && Math.abs(dx) > Math.abs(dy) * 2) {
+				setIsGridSwiping(true);
+				e.preventDefault();
+			}
 			setGridTouchEnd({
 				x: e.targetTouches[0].clientX,
 				y: e.targetTouches[0].clientY,
@@ -246,17 +256,16 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 	};
 
 	const handleGridTouchEnd = () => {
-		if (gridTouchStart && gridTouchEnd) {
+		if (isGridSwiping && gridTouchStart && gridTouchEnd) {
 			const dx = gridTouchEnd.x - gridTouchStart.x;
-			const dy = gridTouchEnd.y - gridTouchStart.y;
-			if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
-				// 수평 스와이프만 페이지 넘김
+			if (Math.abs(dx) > 50) {
 				if (dx < 0) handleNextPage();
 				else handlePrevPage();
 			}
 		}
 		setGridTouchStart(null);
 		setGridTouchEnd(null);
+		setIsGridSwiping(false);
 	};
 
 	if (isLoading) {

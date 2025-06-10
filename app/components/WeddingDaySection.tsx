@@ -39,8 +39,8 @@ export default function WeddingDaySection({ backgroundColor }: { backgroundColor
 	const weekday = WEEKDAYS[language][dateInfo.getDay()];
 	const dateText =
 		language === "ko"
-			? `${year}년 ${month}월 ${day}일 ${weekday} ${time[language]}`
-			: `${weekday}, ${month}/${day}/${year}, ${time[language]}`;
+			? `${year}년 ${month}월 ${day}일 (${weekday}) ${time[language]}`
+			: `${month}/${day}/${year} (${weekday}) ${time[language]}`;
 
 	return (
 		<SectionTemplate
@@ -50,17 +50,18 @@ export default function WeddingDaySection({ backgroundColor }: { backgroundColor
 			backgroundColor={backgroundColor}
 		>
 			<div className="flex flex-col justify-center items-center px-4">
+				<div className="text-center text-black text-md font-medium mb-6">{dateText}</div>
 				{/* 달력 */}
 				<div className="w-full max-w-md bg-white rounded-xl p-4 shadow-sm">
-					<div className="text-center text-gray-700 text-lg font-medium mb-6">{dateText}</div>
-					<div className="grid grid-cols-7 text-center text-gray-400 font-semibold mb-2 text-base">
+					<div className="text-center text-black text-xl mb-6 font-bold">{month}월</div>
+					<div className="grid grid-cols-7 text-center text-gray-400 font-semibold mb-2.5 text-base">
 						{WEEKDAYS[language].map((w, i) => (
 							<div key={i} className={i === 0 ? `text-[#F5898A]` : ""}>
 								{w}
 							</div>
 						))}
 					</div>
-					<div className="grid grid-cols-7 text-center text-gray-700 text-lg gap-y-2">
+					<div className="grid grid-cols-7 text-center text-gray-700 text-lg gap-y-2.5">
 						{weeks.map((week, wi) =>
 							week.map((d, di) => {
 								const isWeddingDay = d === day;
@@ -70,7 +71,7 @@ export default function WeddingDaySection({ backgroundColor }: { backgroundColor
 											<>
 												<span
 													className={
-														`inline-flex w-9 h-9 items-center justify-center rounded-full mb-1 transition-all ` +
+														`inline-flex w-9 h-9 items-center justify-center rounded-full transition-all ` +
 														(isWeddingDay
 															? `bg-[#F5898A] text-white font-bold`
 															: di === 0
@@ -80,6 +81,11 @@ export default function WeddingDaySection({ backgroundColor }: { backgroundColor
 												>
 													{d}
 												</span>
+												{isWeddingDay && (
+													<span className="absolute left-1/2 -translate-x-1/2 top-[calc(100%)] text-xs text-[#F5898A] whitespace-nowrap font-bold">
+														{time[language]}
+													</span>
+												)}
 											</>
 										)}
 									</div>

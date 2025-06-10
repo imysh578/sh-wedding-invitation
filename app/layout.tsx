@@ -25,8 +25,8 @@ export const metadata: Metadata = {
 		images: [
 			{
 				url: `${SITE_URL}${weddingConfig.meta.ogImage}`,
-				width: 1200,
-				height: 630,
+				width: 1080,
+				height: 1920,
 				alt: "청첩장 썸네일",
 			},
 		],

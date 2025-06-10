@@ -1,10 +1,11 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { useLanguage } from "../contexts/LanguageContext";
 import { weddingConfig } from "../config";
 import { location } from "../config/sections/location";
 import SectionTemplate from "./SectionTemplate";
 import Script from "next/script";
+import { FaLock, FaLockOpen } from "react-icons/fa";
 
 const VENUE_COORDINATES = {
 	lat: 37.559098,
@@ -15,18 +16,39 @@ export default function LocationSection({ backgroundColor }: { backgroundColor?:
 	const { language } = useLanguage();
 	const { venue } = weddingConfig;
 
+	// 지도 조작 토글 상태
+	const [mapInteractive, setMapInteractive] = useState(false);
+	const mapRef = useRef<naver.maps.Map | null>(null);
+
 	const handleMapLoad = useCallback(() => {
 		if (window.naver && window.naver.maps) {
 			const map = new window.naver.maps.Map("map", {
 				center: new window.naver.maps.LatLng(VENUE_COORDINATES.lat, VENUE_COORDINATES.lng),
 				zoom: 16,
+				draggable: mapInteractive,
+				pinchZoom: mapInteractive,
 			});
 			new window.naver.maps.Marker({
 				position: new window.naver.maps.LatLng(VENUE_COORDINATES.lat, VENUE_COORDINATES.lng),
 				map,
 			});
+			mapRef.current = map;
 		}
 	}, []);
+
+	// 지도 조작 토글 시 옵션 변경
+	const handleToggleMapInteractive = () => {
+		setMapInteractive((prev) => {
+			const next = !prev;
+			if (mapRef.current) {
+				mapRef.current.setOptions({
+					draggable: next,
+					pinchZoom: next,
+				});
+			}
+			return next;
+		});
+	};
 
 	return (
 		<SectionTemplate
@@ -45,9 +67,17 @@ export default function LocationSection({ backgroundColor }: { backgroundColor?:
 				</div>
 				{/* 동적 네이버 지도 */}
 				<div
-					className="w-full h-[300px] rounded-2xl overflow-hidden shadow-lg mb-8"
+					className="w-full h-[300px] rounded-2xl overflow-hidden shadow-lg mb-8 relative"
 					style={{ position: "relative", zIndex: 0 }}
 				>
+					{/* 지도 조작 토글 버튼 */}
+					<button
+						onClick={handleToggleMapInteractive}
+						className="absolute top-2 right-2 z-10 text-gray-800 bg-white rounded-full px-2 py-2 text-xs font-semibold shadow border border-gray-300 flex items-center gap-1"
+						aria-label={mapInteractive ? "지도 조작 잠금" : "지도 조작하기"}
+					>
+						{mapInteractive ? <FaLockOpen className="text-sm" /> : <FaLock className="text-sm" />}
+					</button>
 					<Script
 						strategy="afterInteractive"
 						src={`https://oapi.map.naver.com/openapi/v3/maps.js?ncpKeyId=${process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID}`}
