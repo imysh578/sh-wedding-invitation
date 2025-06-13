@@ -9,7 +9,7 @@ import { gallery } from "../config/sections/gallery";
 
 const GRID_VIEW_COUNT = 9; // 3x3 그리드에 표시할 이미지 수
 
-const images: GalleryImage[] = Array.from({ length: 37 }).map((_element, index) => ({
+const images: GalleryImage[] = Array.from({ length: 29 }).map((_element, index) => ({
 	src: `/images/gallery/${index + 1}.jpeg`,
 }));
 
