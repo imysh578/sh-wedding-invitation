@@ -1,9 +1,5 @@
 export interface GalleryImage {
 	src: string;
-	alt: string;
-	width: number;
-	height: number;
-	category?: "couple" | "groom" | "bride";
 }
 
 export interface GallerySection {

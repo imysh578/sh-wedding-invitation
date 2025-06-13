@@ -9,10 +9,13 @@ import { gallery } from "../config/sections/gallery";
 
 const GRID_VIEW_COUNT = 9; // 3x3 그리드에 표시할 이미지 수
 
+const images: GalleryImage[] = Array.from({ length: 37 }).map((_element, index) => ({
+	src: `/images/gallery/${index + 1}.jpeg`,
+}));
+
 export default function GallerySection({ backgroundColor }: { backgroundColor?: string }) {
 	const { language } = useLanguage();
 	const [selectedImage, setSelectedImage] = useState<GalleryImage | null>(null);
-	const [images, setImages] = useState<GalleryImage[]>([]);
 	const [isLoading, setIsLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
 	const [currentPage, setCurrentPage] = useState(0);
@@ -31,7 +34,7 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 
 	// 썸네일 경로 변환 함수
 	const getThumbnailPath = (originalPath: string) => {
-		return originalPath.replace("/images/gallery/", "/images/gallery/thumbnails/");
+		return originalPath;
 	};
 
 	// 이미지 프리로딩을 위한 상태
@@ -52,7 +55,7 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 	const pageImages = useMemo(() => {
 		const start = currentPage * GRID_VIEW_COUNT;
 		return images.slice(start, start + GRID_VIEW_COUNT);
-	}, [images, currentPage]);
+	}, [currentPage]);
 
 	// 점진적 프리로딩 함수 - 현재 페이지 + 다음/이전 페이지만 프리로딩
 	const preloadCurrentAndAdjacentPages = (currentPageIndex: number) => {
@@ -85,13 +88,8 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 	useEffect(() => {
 		const fetchImages = async () => {
 			try {
-				const response = await fetch("/api/gallery-images");
-				if (!response.ok) throw new Error("이미지를 불러오는데 실패했습니다");
-				const data = await response.json();
-				setImages(Array.isArray(data) ? data : data.images);
 				// 초기 로딩 시에는 첫 번째 페이지만 프리로딩
-				const initialImages = Array.isArray(data) ? data : data.images;
-				const firstPageImages = initialImages.slice(0, GRID_VIEW_COUNT);
+				const firstPageImages = images.slice(0, GRID_VIEW_COUNT);
 				firstPageImages.forEach((image: GalleryImage) => {
 					// 그리드용 썸네일 프리로딩
 					preloadImage(getThumbnailPath(image.src));
@@ -105,7 +103,7 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 			}
 		};
 		fetchImages();
-	}, []);
+	}, [preloadImage]);
 
 	// 페이지 변경 시 점진적 프리로딩
 	useEffect(() => {
@@ -341,8 +339,8 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 								onClick={(e) => handleImageClick(image, e)}
 							>
 								<Image
-									src={getThumbnailPath(image.src)}
-									alt={image.alt}
+									src={image.src}
+									alt={image.src}
 									fill
 									className="object-cover object-center transition-transform duration-300 group-hover:scale-110"
 									sizes="33vw"
@@ -447,7 +445,7 @@ export default function GallerySection({ backgroundColor }: { backgroundColor?: 
 										>
 											<Image
 												src={selectedImage.src}
-												alt={selectedImage.alt}
+												alt={selectedImage.src}
 												width={0}
 												height={0}
 												className="object-contain w-auto h-auto max-w-[95vw] max-h-[95vh]"

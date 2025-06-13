@@ -18,7 +18,7 @@ export default function HeroSection() {
 		<section className="relative h-screen w-full flex flex-col justify-between">
 			{/* 배경 이미지 */}
 			<div className="absolute inset-0">
-				<Image src={image} alt="Wedding Background" fill priority className="object-cover" sizes="100vw" />
+				<Image src={image} alt="Wedding Background" fill priority className="object-cover" />
 			</div>
 			{/* 오버레이 */}
 			<div className="absolute inset-0 bg-black/30" />
