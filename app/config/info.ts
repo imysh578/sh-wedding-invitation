@@ -13,7 +13,7 @@ export const groom: Person = {
 	},
 	name: { ko: "윤석훈", en: "Seokhun Yoon" },
 	phone: "010-7292-1080",
-	accountNumber: "농협은행 302-72921080-31",
+	accountNumber: "농협은행 302-7292-1080-31",
 };
 
 export const groomFather: Person = {
@@ -22,8 +22,8 @@ export const groomFather: Person = {
 		en: "Groom's Father",
 	},
 	name: { ko: "윤기채", en: "Kichae Yoon" },
-	phone: "010-3333-4444",
-	accountNumber: "농협 123-4567-8901-23",
+	phone: "010-7251-8609",
+	accountNumber: "국민은행 735702-01-514042",
 };
 
 export const groomMother: Person = {
@@ -32,8 +32,8 @@ export const groomMother: Person = {
 		en: "Groom's Mother",
 	},
 	name: { ko: "전태자", en: "Taeja Jeon" },
-	phone: "010-4444-5555",
-	accountNumber: "기업은행 123-456789",
+	phone: "010-3276-8609",
+	accountNumber: "농협은행 302-3276-8609-51",
 };
 
 export const bride: Person = {
